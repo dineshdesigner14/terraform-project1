@@ -13,6 +13,17 @@ pipeline {
     }
 
     stages {
+stage('Install Terraform') {
+    steps {
+        sh '''
+            curl -fsSL https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip -o terraform.zip
+            unzip terraform.zip
+            sudo mv terraform /usr/local/bin/
+            terraform -version
+        '''
+    }
+}
+
         stage('Checkout SCM') {
             steps {
                 git branch: 'main', url: 'https://github.com/dineshdesigner14/terraform-project1.git'
