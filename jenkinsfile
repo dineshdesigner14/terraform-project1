@@ -2,7 +2,10 @@ pipeline {
     agent any
 
     environment {
-       AWS_CREDENTIALS_ID = credentials'b0ff1d3c-a226-4973-9b7b-fde1677c9990'  // Replace with actual AWS credential ID
+        // Bind AWS credentials (assumes 'b0ff1d3c-a226-4973-9b7b-fde1677c9990' is a Jenkins credential ID of type "AWS Credentials")
+        AWS_ACCESS_KEY_ID = credentials('b0ff1d3c-a226-4973-9b7b-fde1677c9990').getAccessKey()
+        AWS_SECRET_ACCESS_KEY = credentials('b0ff1d3c-a226-4973-9b7b-fde1677c9990').getSecretKey()
+        AWS_DEFAULT_REGION = 'us-east-1'
     }
 
     parameters {
@@ -16,19 +19,19 @@ pipeline {
             }
         }
 
-        stage('Initialize Terraform') {
+        stage('Terraform Init') {
             steps {
                 sh 'terraform init'
             }
         }
 
-        stage('Plan Terraform') {
+        stage('Terraform Plan') {
             steps {
                 sh 'terraform plan -out=tfplan'
             }
         }
 
-        stage('Apply or Destroy') {
+        stage('Terraform Apply or Destroy') {
             steps {
                 script {
                     if (params.ACTION == 'apply') {
@@ -38,6 +41,12 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo "Terraform ${params.ACTION} completed."
         }
     }
 }
